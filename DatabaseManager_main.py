@@ -149,16 +149,19 @@ def addMPSCustomer(cust_addr_street,cust_addr_city,cust_addr_state,cust_addr_cou
             uid = int(row[0]) if row[0] else 0
         query_indiv = f"select cust_id from mps_cust_indiv where cust_id = {uid}"
         cur.execute(query_indiv)
-        uid_indiv = cur.fetchone()
+        for row in cur:
+            uid_indiv = int(row[0]) if row[0] else 0
+       
 
         query_corp = f"select cust_id from mps_cust_corp where cust_id = {uid}"
         cur.execute(query_corp)
-        uid_corp = cur.fetchone()
+        for row in cur:
+            uid_corp = int(row[0]) if row[0] else 0
 
         chec_uuid = ''
 
         if uid_indiv is None and uid_corp is None:
-            chec_uuid = 'C'  # Assuming 'C' means individual and 'I' means corporate, adjust as needed
+            chec_uuid = 'N'
         elif uid_indiv is not None:
             chec_uuid = 'I'
         else:
@@ -174,10 +177,32 @@ def addMPSCustomer(cust_addr_street,cust_addr_city,cust_addr_state,cust_addr_cou
 
     
 
+def addMPSCorpDisc(discount_fixed_percent,affl_company):
+    try:
+        query = 'select discount_id from mps_corp_disc order by discount_id limit 1'
+        cur.execute(query)
+        for row in cur:
+            did = int(row[0]) if row[0] else 0
+        did+=1
+        query = f"insert into mps_corp_disc values({did},'{discount_fixed_percent}','{affl_company}')"
+        cur.execute(query)
+        con.commit()
+    except connector.Error as err:
+        print('Error ',err)
+        
+        
+        
 
-
-#vehicle
-
+def addMPSDisc(discount_id,discount_type):
+    try:
+        query = f"insert into mps_corp_disc values({discount_id},'{discount_type}')"
+        cur.execute(query)
+        con.commit()
+    except connector.Error as err:
+        print('Error ',err)
+        
+        
+      
     
 def addMPSVehicle(location_id,class_id, make,model,make_year,vin_no,liscense_plate_no):
    
