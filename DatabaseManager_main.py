@@ -89,36 +89,35 @@ def createTables():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 #corporate add
 #need changes
-def addMpsCorporation(corp_name,reg_no):
-    query = f"insert into mps_corporation values({corp_name},'{reg_no}')"
-    cur.execute(query)
-    con.commit()
+def addMPSUsers(username,password):
+    try:
+        query = 'select max(user_id) from mps_users'
+        cur.execute(query)
+        for row in cur:
+            uid = int(row[0]) if row[0] else 0
+        uid += 1
+        query = f"insert into mps_users (user_id, username, password) values({uid},'{username}','{password}')"
+        cur.execute(query)
+        con.commit()
+    except connector.Error as err:
+        print('Error ',err)
     
 
-def addMpsCustCorporate(emp_id,corp_id):
-    query = 'select customer_id from mps_cust_corporate order by customer_id desc limit 1'
-    cur.execute(query)
-    for row in cur:
-        cid = int(row[0])
-    cid += 10
-    query = f"insert into mps_cust_corporate values({cid},{emp_id},'{corp_id}')"
-    cur.execute(query)
-    con.commit()
-    return cid
+def addMpsCustCorporate(emp_id,company_name,company_regn_no):
+    try:
+        query = 'select max(user_id) from mps_cust_corp'
+        cur.execute(query)
+        for row in cur:
+            cid = int(row[0]) if row[0] else 0
+        cid += 1
+        query = f"insert into mps_cust_corp  values({cid},{emp_id},'{company_name}','{company_regn_no}')"
+        cur.execute(query)
+        con.commit()
+    except connector.Error as err:
+        print('Error ',err)
+    
 
 
 
@@ -128,17 +127,19 @@ def addMpsCustCorporate(emp_id,corp_id):
 #individual
 
 
-def addMPSCustomerIndividual(dl_no,insurance_company,insurance_policy_no):
-    query = 'select customer_id from mps_cust_individual order by customer_id desc limit 1'
-    cur.execute(query)
-    for row in cur:
-        customer_id = int(row[0])
-    customer_id+=10
-    query = f"insert into mps_cust_individual values({customer_id},{dl_no},'{insurance_company},{insurance_policy_no}')"
-    cur.execute(query)
-    con.commit()
-    return customer_id
-  
+def addMPSCustomerIndividual(cust_id,drivers_licence_no,fname,lname,insurance_cmp_name,insurance_policy_no):
+    try:
+        query = 'select max(user_id) from mps_cust_corp'
+        cur.execute(query)
+        for row in cur:
+            cid = int(row[0]) if row[0] else 0
+        cid += 1
+        query = f"insert into mps_cust_individual values({customer_id},'{drivers_licence_no}','{fname}','{lname}','{insurance_cmp_name}','{insurance_policy_no}')"
+        cur.execute(query)
+        con.commit()
+        return customer_id
+    except connector.Error as err:
+        print('Error ',err)
 
 
 def addMPSCustomer(customer_type,first_name,last_name,email,phone,address_street,address_city,address_state,address_zipcode):
