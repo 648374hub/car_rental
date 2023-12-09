@@ -136,21 +136,41 @@ def addMPSCustomerIndividual(drivers_licence_no,fname,lname,insurance_cmp_name,i
         print('Error ',err)
 
 
-def addMPSCustomer(customer_type,first_name,last_name,email,phone,address_street,address_city,address_state,address_zipcode):
+def addMPSCustomer(cust_addr_street,cust_addr_city,cust_addr_state,cust_addr_country,cust_addr_zipcode,cust_email,cust_phone_no):
     try:
-        query = 'select max(user_id) from mps_users'
+        query = 'select cust_id from mps_customer order by cust_id limit 1'
         cur.execute(query)
         for row in cur:
             cid = int(row[0]) if row[0] else 0
-        cid += 1
-        query = f"insert into mps_customer values({customer_type},'{cust_addr_street}','{cust_addr_city}','{cust_addr_state}','{cust_addr_country}','{cust_addr_zipcode}','{cust_email}','{cust_phone_no}','{cust_type}')"
+        cid+=1
+        query = 'select max(user_id) from mps_users'
+        cur.execute(query)
+        for row in cur:
+            uid = int(row[0]) if row[0] else 0
+        query_indiv = f"select cust_id from mps_cust_indiv where cust_id = {uid}"
+        cur.execute(query_indiv)
+        uid_indiv = cur.fetchone()
+
+        query_corp = f"select cust_id from mps_cust_corp where cust_id = {uid}"
+        cur.execute(query_corp)
+        uid_corp = cur.fetchone()
+
+        chec_uuid = ''
+
+        if uid_indiv is None and uid_corp is None:
+            chec_uuid = 'C'  # Assuming 'C' means individual and 'I' means corporate, adjust as needed
+        elif uid_indiv is not None:
+            chec_uuid = 'I'
+        else:
+            chec_uuid = 'C'
+           
+        query = f"insert into mps_customer values({cid},'{cust_addr_street}','{cust_addr_city}','{cust_addr_state}','{cust_addr_country}','{cust_addr_zipcode}','{cust_email}','{cust_phone_no}','{chec_uuid}',{uid})"
         cur.execute(query)
         con.commit()
         return cid
+    except connector.Error as err:
+        print('Error ',err)
 
-    query = f"insert into mps_customer values({customer_type},'{first_name},{last_name},{email},{phone},{address_street},{address_city},{address_state},{address_zipcode}')"
-    cur.execute(query)
-    con.commit()
 
     
 
