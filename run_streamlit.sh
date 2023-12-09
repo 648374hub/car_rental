@@ -1,0 +1,1 @@
+Streamlit run Home_Page.py --server.port 8010
