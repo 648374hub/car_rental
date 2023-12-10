@@ -23,21 +23,16 @@ class DatabaseManager:
 
         self.cursor = self.conn.cursor()
 
-    def create_usertable(self):
-        self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS userstable(username TEXT,password TEXT)"
-        )
-
     def update_userdata(self, username, password):
         self.cursor.execute(
-            "INSERT INTO userstable(username,password) VALUES (?,?)",
+            "INSERT INTO MPS_USERS(username,password) VALUES (?,?)",
             (username, password),
         )
         self.conn.commit()
 
     def login_user(self, username, password):
         self.cursor.execute(
-            "SELECT * FROM userstable WHERE username =? AND password = ?",
+            "SELECT * FROM MPS_USERS WHERE username =? AND password = ?",
             (username, password),
         )
         data = self.cursor.fetchall()

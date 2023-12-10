@@ -8,6 +8,8 @@ st.title("Customer Details")
 st.sidebar.header("Customer Details")
 st.sidebar.write("Hello")
 
+customer_type_map = {"C": "Corporate", "I": "Individual"}
+
 db_manager = DatabaseManager(
     db_user="root",
     db_password="648374@Mysql",
@@ -15,12 +17,24 @@ db_manager = DatabaseManager(
     database="car_rental",
 )
 
-customer_type_map = {"C": "Corporate", "I": "Individual"}
+
+@st.cache_data
+def cached_customer_details(username):
+    result = db_manager.get_customer_details(username)  # TODO Implement this method
+    return result
+
+
+@st.cache_data
+def cached_customer_bookings(username):
+    result = db_manager.get_customer_bookings(
+        username
+    )  # TODO Implement this method to return pandas DF
+    return result
 
 
 def profile():
     username = st.text_input("Enter Username")
-    result = db_manager.get_customer_details(username)  # TODO Implement this method
+    result = cached_customer_details(username)
     selected = option_menu(
         "",
         ["User Home", "Change Password", "View Bookings"],
@@ -64,21 +78,21 @@ def profile():
 
         pswd_flag = st.button("Change Password")
         if pswd_flag:
-            ## Uncomment this
-            # result = db_manager.login_user(username, make_hashes(curr_password))
-            # if result:
-            #     hashed_pswd = make_hashes(new_password)
-            #     db_manager.update_userdata(username, hashed_pswd)
-            #     st.success("Successfully Changed Password!")
-            #     time.sleep(2)
-            # else:
-            #     st.warning("Invalid Credentials!")
-            pass
+            result = db_manager.login_user(username, make_hashes(curr_password))
+            if result:
+                hashed_pswd = make_hashes(new_password)
+                db_manager.update_userdata(username, hashed_pswd)
+                st.success("Successfully Changed Password!")
+            else:
+                st.warning("Invalid Credentials!")
     else:
         with st.container(border=True):
             st.subheader("Your Bookings")
-            # TODO Fetch order from DB - pandas DF
-            st.dataframe()
+            result = cached_customer_bookings(username)
+            if result:
+                st.dataframe(result)
+            else:
+                st.info("You don't have any previous bookings!")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import random
 from uuid import uuid4
 import streamlit as st
 from PIL import Image
+from DatabaseManager import DatabaseManager
 
 st.set_page_config(page_title="Cars List", layout="wide")
 st.title("Available Cars")
@@ -11,24 +12,39 @@ st.sidebar.write("Hello")
 
 images = os.listdir("images")
 
+db_manager = DatabaseManager(
+    db_user="root",
+    db_password="648374@Mysql",
+    host="localhost",
+    database="car_rental",
+)
+
+
+@st.cache_data
+def cached_vehicle_details(limit):
+    result = db_manager.get_vehicle_details(
+        limit
+    )  # TODO Implement this method to return list of dictionaries
+    return result
+
 
 def list_cars():
     st.write("---")
-    for idx, image_path in enumerate(images):
+    car_details = cached_vehicle_details(len(images))  # list of records
+    for details_obj, image_path in zip(car_details, images):
         with st.container():
             col1, col2, col3 = st.columns([0.5, 1, 0.3])
-            # TODO: Fetch details from DB
             with col1:
                 image1 = Image.open(f"images/{image_path}")
                 st.image(image1)
             with col2:
-                st.write(f"Make: ")
-                st.write(f"Model: ")
-                st.write(f"Type: ")
-                st.write(f"Daily Odometer Limit: ")
-                st.write(f"Rental Rate: ")
-                st.write(f"Over Mileage Fees: ")
-                st.write(f"Registration Year: ")
+                st.write("Vehicle VIN: ", details_obj["VEH_VIN"])
+                st.write("Make: ", details_obj["VEH_MAKE"])
+                st.write("Model: ", details_obj["VEH_MODEL"])
+                st.write("Type: ", details_obj["VEH_CLASS_TYPE"])
+                st.write("Rental Rate: ", details_obj["VEH_RENTAL_RATE"])
+                st.write("Over Mileage Fees: ", details_obj["VEH_OVER_MILEAGE_FEES"])
+                st.write("Registration Year: ", details_obj["VEH_YEAR"])
             with col3:
                 st.write(f"Status : {random.choice(['Available','Unavailable'])}")
         st.write("---")

@@ -23,7 +23,7 @@ def sign_up():
         "",
         ["Login", "Register"],
         menu_icon="cast",
-        default_index=1,
+        default_index=0,
         orientation="horizontal",
     )
 
@@ -34,15 +34,15 @@ def sign_up():
 
             login = st.button("**Login**")
             if login:
-                # hashed_pswd = make_hashes(password)
-                # result = db_manager.login_user(username, hashed_pswd)
-                # if result:
-                #     st.success("Logged In as {} !".format(username))
-                #     time.sleep(2)
-                #     switch_page("List Available Cars")
-                # else:
-                #     st.warning("Invalid Credentials!")
-                pass
+                hashed_pswd = make_hashes(password)
+                result = db_manager.login_user(username, hashed_pswd)
+                if result:
+                    st.success("Logged In as {} !".format(username))
+                    time.sleep(2)
+                    switch_page("List Available Cars")
+                else:
+                    st.warning("Invalid Credentials!")
+                st.session_state["username"] = username
     else:
         with st.container(border=True):
             st.subheader("Enter Customer Details")
@@ -50,7 +50,7 @@ def sign_up():
                 "Select Customer Type",
                 ["Individual", "Corporate"],
                 menu_icon="cast",
-                default_index=1,
+                default_index=0,
                 orientation="horizontal",
             )
             if customer_type == "Corporate":
@@ -91,38 +91,41 @@ def sign_up():
 
             register = st.button("**Register**")
             if register:
-                # if customer_type == "Corporate":
-                #     db_manager.add_corporate_user(
-                #         username,
-                #         make_hashes(password),
-                #         corp_emp_id,
-                #         corp_comp_name,
-                #         corp_regd_num,
-                #         phone,
-                #         email,
-                #         street,
-                #         city,
-                #         zipcode,
-                #         state,
-                #     )
-                # else:
-                #     db_manager.add_individual_user(
-                #         username,
-                #         make_hashes(password),
-                #         indi_license,
-                #         indi_insr_comp,
-                #         indi_insr_pol_num,
-                #         first_name,
-                #         last_name,
-                #         phone,
-                #         email,
-                #         street,
-                #         city,
-                #         zipcode,
-                #         state,
-                #     )
+                if customer_type == "Corporate":
+                    # TODO: Implement this method
+                    db_manager.add_corporate_user(
+                        username,
+                        make_hashes(password),
+                        corp_emp_id,
+                        corp_comp_name,
+                        corp_regd_num,
+                        phone,
+                        email,
+                        street,
+                        city,
+                        zipcode,
+                        state,
+                    )
+                else:
+                    # TODO: Implement this method
+                    db_manager.add_individual_user(
+                        username,
+                        make_hashes(password),
+                        indi_license,
+                        indi_insr_comp,
+                        indi_insr_pol_num,
+                        first_name,
+                        last_name,
+                        phone,
+                        email,
+                        street,
+                        city,
+                        zipcode,
+                        state,
+                    )
                 st.success("You have successfully created an Account!")
                 st.info("Go to Login Menu to login")
+                selected = "Login"
 
 
 if __name__ == "__main__":
