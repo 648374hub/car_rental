@@ -6,7 +6,6 @@ import time
 st.set_page_config(page_title="Profile")
 st.title("Customer Details")
 st.sidebar.header("Customer Details")
-st.sidebar.write("Hello")
 
 customer_type_map = {"C": "Corporate", "I": "Individual"}
 
@@ -20,20 +19,20 @@ db_manager = DatabaseManager(
 
 @st.cache_data
 def cached_customer_details(username):
-    result = db_manager.get_customer_details(username)  # TODO Implement this method
+    result = db_manager.get_customer_details(username)
     return result
 
 
 @st.cache_data
 def cached_customer_bookings(username):
-    result = db_manager.get_customer_bookings(
-        username
-    )  # TODO Implement this method to return pandas DF
+    result = db_manager.get_customer_bookings(username)
     return result
 
 
 def profile():
-    username = st.text_input("Enter Username")
+    st.sidebar.write(f"Hello {st.session_state.username}")
+
+    username = st.session_state["username"]
     result = cached_customer_details(username)
     selected = option_menu(
         "",
@@ -44,26 +43,26 @@ def profile():
     )
     if selected == "User Home":
         with st.container(border=True):
-            st.write("**Customer Type**", customer_type_map[result["CUST_TYPE"]])
+            st.write("**Customer Type**", result["customer_type"])
 
-            if result["CUST_TYPE"] == "I":
-                st.write("**Full Name**", f"{result['FNAME']} {result['LNAME']}")
-                st.write("**License ID**", result["DRIVERS_LICENCE_NO"])
-                st.write("**Insurance Company Name**", result["INSURANCE_CMP_NAME"])
-                st.write("**Insurance Policy Number**", result["INSURANCE_POLICY_NO"])
+            if result["customer_type"] == "Individual":
+                st.write("**Full Name**", f"{result['customer_name']}")
+                st.write("**License ID**", result["identification_number"])
+                st.write("**Insurance Company Name**", result["insurance_company"])
             else:
-                st.write("**Employee ID**", result["EMP_ID"])
-                st.write("**Company Name**", result["COMPANY_NAME"])
-                st.write("**Company Registration Number**", result["COMPANY_REGN_NO"])
+                st.write("**Company Name**", result["customer_name"])
+                st.write(
+                    "**Company Registration Number**", result["identification_number"]
+                )
 
-            st.write("**Phone Number**", result["CUST_PHONE_NO"])
-            st.write("**Email ID**", result["CUST_EMAIL"])
-            st.write("**Address**")
-            with st.container(border=True):
-                st.write("Street details", result["CUST_ADDR_STREET"])
-                st.write("City", result["CUST_ADDR_CITY"])
-                st.write("Zipcode", result["CUST_ADDR_ZIPCODE"])
-                st.write("State", result["CUST_ADDR_STATE"])
+            # st.write("**Phone Number**", result["CUST_PHONE_NO"])
+            # st.write("**Email ID**", result["CUST_EMAIL"])
+            # st.write("**Address**")
+            # with st.container(border=True):
+            #     st.write("Street details", result["CUST_ADDR_STREET"])
+            #     st.write("City", result["CUST_ADDR_CITY"])
+            #     st.write("Zipcode", result["CUST_ADDR_ZIPCODE"])
+            #     st.write("State", result["CUST_ADDR_STATE"])
 
     elif selected == "Change Password":
         with st.container(border=True):
@@ -96,4 +95,7 @@ def profile():
 
 
 if __name__ == "__main__":
-    profile()
+    try:
+        profile()
+    except AttributeError as e:
+        st.warning("Please LogIn to access this page")

@@ -8,7 +8,6 @@ from DatabaseManager import DatabaseManager
 st.set_page_config(page_title="Cars List", layout="wide")
 st.title("Available Cars")
 st.sidebar.header("Available Cars")
-st.sidebar.write("Hello")
 
 images = os.listdir("images")
 
@@ -22,13 +21,13 @@ db_manager = DatabaseManager(
 
 @st.cache_data
 def cached_vehicle_details(limit):
-    result = db_manager.get_vehicle_details(
-        limit
-    )  # TODO Implement this method to return list of dictionaries
+    result = db_manager.list_avail_cars(limit)
     return result
 
 
 def list_cars():
+    st.sidebar.write(f"Hello {st.session_state.username}")
+
     st.write("---")
     car_details = cached_vehicle_details(len(images))  # list of records
     for details_obj, image_path in zip(car_details, images):
@@ -51,4 +50,7 @@ def list_cars():
 
 
 if __name__ == "__main__":
-    list_cars()
+    try:
+        list_cars()
+    except AttributeError as e:
+        st.warning("Please LogIn to access this page")

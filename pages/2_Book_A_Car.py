@@ -6,7 +6,6 @@ from DatabaseManager import DatabaseManager
 st.set_page_config(page_title="Create Booking", layout="wide")
 st.title("Book a Car")
 st.sidebar.header("Book a Car")
-st.sidebar.write("Hello")
 
 db_manager = DatabaseManager(
     db_user="root",
@@ -18,25 +17,31 @@ db_manager = DatabaseManager(
 
 @st.cache_data
 def cached_customer_details(username):
-    result = db_manager.get_customer_details(username)  # TODO Implement this method
+    customer_type = db_manager.get_customer_type(username)
+    if customer_type == "C":
+        result = db_manager.get_corp_cust_dets(username)
+    else:
+        result = db_manager.get_indiv_cust_dets(username)
     return result
 
 
 @st.cache_data
 def cached_rent_details(vehicle_class):
-    result = db_manager.get_rental_details(vehicle_class)  # TODO Implement this method
+    result = db_manager.get_rent_details(vehicle_class)
     return result
 
 
 @st.cache_data
 def cached_discount(username, discount_id):
-    result = db_manager.verify_and_get_discount(
+    result = db_manager.isDiscountValid(
         username, discount_id
     )  # TODO Implement this method
     return result
 
 
 def create_booking():
+    st.sidebar.write(f"Hello {st.session_state.username}")
+
     user_inputs = {}
     with st.container(border=True):
         st.subheader("Vehicle Details")
@@ -65,12 +70,15 @@ def create_booking():
             pickup_addr["LOC_ADDR_CITY"] = st.text_input("City", key=uuid4())
             pickup_addr["LOC_ADDR_ZIPCODE"] = st.text_input("Zipcode", key=uuid4())
             pickup_addr["LOC_ADDR_STATE"] = st.text_input("State", key=uuid4())
+            pickup_addr["LOC_ADDR_COUNTRY"] = st.text_input("Country", key=uuid4())
+
         with st.expander("**Enter Drop-off Address**"):
             drop_addr = {}
             drop_addr["LOC_ADDR_STREET"] = st.text_input("Street details", key=uuid4())
             drop_addr["LOC_ADDR_CITY"] = st.text_input("City", key=uuid4())
             drop_addr["LOC_ADDR_ZIPCODE"] = st.text_input("Zipcode", key=uuid4())
             drop_addr["LOC_ADDR_STATE"] = st.text_input("State", key=uuid4())
+            drop_addr["LOC_ADDR_COUNTRY"] = st.text_input("Country", key=uuid4())
 
         user_inputs["pickup_addr"] = pickup_addr
         user_inputs["drop_addr"] = drop_addr
@@ -132,4 +140,7 @@ def create_booking():
 
 
 if __name__ == "__main__":
-    create_booking()
+    try:
+        create_booking()
+    except AttributeError as e:
+        st.warning("Please LogIn to access this page")
